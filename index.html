@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f3f3ef">
+  <meta name="description" content="A private, offline-first notes app. No ads, no account, portable backups.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <title>NOTES_01</title>
+  <style>
+    :root { color-scheme: light; --paper:#f3f3ef; --ink:#171717; --muted:#777772; --line:#d5d5ce; --panel:#fff; --accent:#dfff00; --danger:#b3261e; }
+    * { box-sizing:border-box; }
+    html,body { margin:0; min-height:100%; background:var(--paper); color:var(--ink); font-family:Arial,Helvetica,sans-serif; }
+    body { letter-spacing:-.015em; }
+    button,input,textarea,select { font:inherit; }
+    button { cursor:pointer; color:inherit; }
+    .app { min-height:100dvh; display:grid; grid-template-columns:260px minmax(0,1fr); }
+    aside { border-right:1px solid var(--line); padding:22px 16px; display:flex; flex-direction:column; gap:18px; min-height:100dvh; }
+    .brand { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:0 5px 16px; border-bottom:1px solid var(--line); }
+    .brand h1 { font-size:19px; letter-spacing:.08em; margin:0; font-weight:900; }
+    .dotmark { width:25px; height:25px; background:radial-gradient(circle,#171717 1.4px,transparent 1.6px) 0 0/6px 6px; }
+    .eyebrow { font-size:10px; letter-spacing:.16em; font-weight:800; color:var(--muted); text-transform:uppercase; }
+    .primary { background:var(--ink); color:white; border:1px solid var(--ink); border-radius:3px; padding:12px 13px; font-weight:700; text-align:left; }
+    .primary:hover { opacity:.88; }
+    .secondary,.iconbtn,.navbtn { background:transparent; border:1px solid var(--line); border-radius:3px; padding:9px 10px; }
+    .secondary:hover,.iconbtn:hover,.navbtn:hover { background:#e8e8e1; }
+    .nav { display:grid; gap:5px; }
+    .navbtn { border-color:transparent; text-align:left; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px; }
+    .navbtn.active { background:var(--accent); border-color:var(--ink); font-weight:800; }
+    .count { font-size:11px; color:var(--muted); }
+    .folder-head { display:flex; align-items:center; justify-content:space-between; margin:7px 5px 5px; }
+    .folder-list { display:grid; gap:4px; }
+    .folder-item { display:flex; align-items:center; gap:8px; width:100%; text-align:left; padding:9px 10px; border:1px solid transparent; background:transparent; border-radius:3px; }
+    .folder-item.active { border-color:var(--ink); background:#fff; }
+    .folder-item .folder-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; }
+    .folder-item .folder-count { color:var(--muted); font-size:11px; }
+    .side-bottom { margin-top:auto; display:grid; gap:8px; }
+    .side-bottom .secondary { text-align:left; }
+    main { min-width:0; padding:24px clamp(16px,3vw,42px) 40px; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:24px; }
+    .crumb { font-size:11px; font-weight:800; letter-spacing:.15em; text-transform:uppercase; color:var(--muted); }
+    .status { display:flex; align-items:center; gap:7px; font-size:11px; color:var(--muted); }
+    .status-dot { width:7px; height:7px; background:#628400; border-radius:50%; }
+    .workspace { display:grid; grid-template-columns:minmax(220px,310px) minmax(0,1fr); gap:22px; align-items:start; }
+    .list-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:12px; }
+    .list-head h2 { font-size:12px; letter-spacing:.13em; text-transform:uppercase; margin:0; }
+    .search { width:100%; padding:11px 12px; border:1px solid var(--line); background:var(--panel); border-radius:3px; outline:none; margin-bottom:10px; }
+    .search:focus,input:focus,textarea:focus,select:focus { outline:2px solid var(--accent); outline-offset:1px; }
+    .notes-list { display:grid; gap:7px; }
+    .note-card { width:100%; text-align:left; border:1px solid var(--line); background:rgba(255,255,255,.58); border-radius:3px; padding:13px; }
+    .note-card.active { border:1px solid var(--ink); background:white; box-shadow:3px 3px 0 var(--ink); }
+    .note-card h3 { margin:0 0 7px; font-size:14px; overflow-wrap:anywhere; }
+    .note-card p { margin:0; color:var(--muted); font-size:12px; line-height:1.45; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+    .note-meta { display:flex; justify-content:space-between; gap:8px; color:var(--muted); font-size:10px; margin-top:12px; letter-spacing:.04em; }
+    .empty-list { border:1px dashed var(--line); color:var(--muted); padding:22px 14px; font-size:13px; line-height:1.5; }
+    .editor { min-width:0; border:1px solid var(--line); background:var(--panel); border-radius:3px; min-height:590px; }
+    .editor-head { padding:14px 16px; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .save-state { color:var(--muted); font-size:11px; }
+    .editor-actions { display:flex; gap:6px; flex-wrap:wrap; }
+    .editor-actions button { padding:7px 9px; font-size:11px; }
+    .editor-body { padding:22px clamp(15px,2.5vw,32px) 28px; }
+    .title-input { border:0; outline:none; width:100%; background:transparent; font-size:clamp(23px,3vw,34px); font-weight:800; letter-spacing:-.04em; margin-bottom:12px; padding:3px 0; }
+    .metadata { display:flex; gap:8px; margin-bottom:18px; }
+    .metadata select { border:1px solid var(--line); background:white; padding:7px 8px; border-radius:2px; max-width:100%; font-size:12px; }
+    .toolbar { display:flex; gap:6px; flex-wrap:wrap; border-bottom:1px solid var(--line); padding-bottom:12px; margin-bottom:12px; }
+    .toolbar button { background:#f6f6f2; border:1px solid var(--line); padding:7px 9px; border-radius:2px; font-size:11px; }
+    .toolbar button:hover { background:var(--accent); border-color:var(--ink); }
+    .content-input { width:100%; min-height:285px; resize:vertical; border:0; outline:none; background:transparent; line-height:1.7; font-size:14px; color:var(--ink); font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+    .preview { border-top:1px solid var(--line); margin-top:16px; padding-top:18px; font-size:14px; line-height:1.7; overflow-wrap:anywhere; }
+    .preview h1,.preview h2,.preview h3 { line-height:1.2; margin:1.2em 0 .55em; }
+    .preview h1 { font-size:25px; }.preview h2 { font-size:20px; }.preview h3 { font-size:16px; }
+    .preview p { margin:.6em 0; }.preview ul,.preview ol { padding-left:24px; }
+    .preview blockquote { margin:12px 0; padding:4px 12px; border-left:3px solid var(--accent); color:#555; }
+    .preview code { background:#eee; padding:2px 4px; font-size:.92em; }.preview pre { white-space:pre-wrap; background:#f1f1ed; padding:12px; }
+    .preview a { color:inherit; text-decoration-thickness:2px; }
+    .preview input[type=checkbox] { accent-color:#171717; }
+    .preview-label { font-size:10px; font-weight:800; letter-spacing:.15em; color:var(--muted); }
+    .editor-empty { padding:50px 24px; text-align:center; }
+    .editor-empty .bigmark { font-size:38px; font-weight:900; letter-spacing:.1em; }
+    .editor-empty p { max-width:300px; margin:12px auto 20px; color:var(--muted); font-size:13px; line-height:1.6; }
+    .mobile-header { display:none; }
+    .toast { position:fixed; left:50%; bottom:20px; transform:translateX(-50%); background:var(--ink); color:white; padding:11px 15px; font-size:12px; z-index:20; border:1px solid white; box-shadow:3px 3px 0 var(--accent); max-width:calc(100vw - 24px); }
+    .modal-backdrop { position:fixed; inset:0; background:#0008; display:grid; place-items:center; padding:18px; z-index:30; }
+    .modal { background:var(--paper); border:1px solid var(--ink); box-shadow:6px 6px 0 var(--ink); width:min(420px,100%); padding:22px; }
+    .modal h2 { margin:0 0 10px; font-size:19px; }.modal p { font-size:13px; color:var(--muted); line-height:1.5; }
+    .modal input { width:100%; padding:11px; border:1px solid var(--line); background:white; margin:8px 0 15px; }
+    .modal-actions { display:flex; justify-content:flex-end; gap:8px; }
+    .danger { color:var(--danger); }
+    @media(max-width:850px) {
+      .app { grid-template-columns:1fr; }
+      aside { min-height:0; border-right:0; border-bottom:1px solid var(--line); padding:13px 14px; gap:12px; }
+      .brand { padding:0 3px 10px; }
+      .brand h1 { font-size:17px; }
+      .primary { padding:10px 12px; }
+      .nav { grid-template-columns:repeat(3,1fr); gap:4px; }
+      .navbtn { padding:8px 7px; font-size:12px; justify-content:center; }
+      .navbtn .count { display:none; }
+      .folder-head { margin:0 3px; }
+      .folder-list { display:flex; overflow-x:auto; padding-bottom:2px; }
+      .folder-item { width:auto; flex:0 0 auto; border-color:var(--line); padding:8px 10px; }
+      .folder-item .folder-count { display:none; }
+      .side-bottom { display:flex; flex-wrap:wrap; margin-top:0; }
+      .side-bottom .secondary { flex:1; text-align:center; font-size:11px; padding:8px 6px; }
+      main { padding:17px 13px 30px; }
+      .topbar { margin-bottom:16px; }
+      .workspace { grid-template-columns:1fr; gap:14px; }
+      .notes-list { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .note-card { padding:11px; }
+      .editor { min-height:450px; }
+      .content-input { min-height:220px; }
+    }
+    @media(max-width:420px) {
+      .notes-list { grid-template-columns:1fr; }
+      .status { font-size:10px; }
+      .editor-head { align-items:flex-start; flex-direction:column; }
+      .editor-actions { width:100%; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="brand"><h1>NOTES<span style="color:#777">_</span>01</h1><div class="dotmark" aria-hidden="true"></div></div>
+    <button class="primary" id="newNote">＋ &nbsp; NEW NOTE</button>
+    <div>
+      <div class="eyebrow" style="margin:0 5px 8px">Library</div>
+      <nav class="nav" aria-label="Note filters">
+        <button class="navbtn active" data-filter="all">All notes <span class="count" id="allCount">0</span></button>
+        <button class="navbtn" data-filter="pinned">Pinned <span class="count" id="pinnedCount">0</span></button>
+        <button class="navbtn" data-filter="unfiled">Unfiled <span class="count" id="unfiledCount">0</span></button>
+      </nav>
+    </div>
+    <section>
+      <div class="folder-head"><span class="eyebrow">Folders</span><button class="iconbtn" id="addFolder" aria-label="Add folder" title="Add folder">＋</button></div>
+      <div class="folder-list" id="folderList"></div>
+    </section>
+    <div class="side-bottom">
+      <button class="secondary" id="exportBackup">↓ &nbsp; Export backup</button>
+      <button class="secondary" id="importBackup">↑ &nbsp; Import backup</button>
+      <button class="secondary" id="exportMarkdown">↗ &nbsp; Export note as .md</button>
+      <input id="importFile" type="file" accept=".json,application/json" hidden>
+    </div>
+  </aside>
+  <main>
+    <div class="topbar">
+      <div class="crumb" id="currentView">PERSONAL ARCHIVE / ALL NOTES</div>
+      <div class="status"><span class="status-dot"></span> LOCAL ONLY <span style="color:#b5b5ad">·</span> NO ADS</div>
+    </div>
+    <div class="workspace">
+      <section class="list-panel">
+        <div class="list-head"><h2>Entries <span id="entryCount">00</span></h2><span class="eyebrow">01—∞</span></div>
+        <input class="search" id="search" type="search" placeholder="⌕  Search notes..." autocomplete="off" aria-label="Search notes">
+        <div class="notes-list" id="notesList"></div>
+      </section>
+      <section class="editor" id="editor">
+        <div class="editor-empty"><div class="bigmark">N_01</div><p>Your thoughts, stored locally. No account. No ads. No noise.</p><button class="primary" id="emptyNew">＋ CREATE FIRST NOTE</button></div>
+      </section>
+    </div>
+  </main>
+</div>
+<div id="overlayRoot"></div>
+<div id="toastRoot" aria-live="polite"></div>
+<script>
+(() => {
+  "use strict";
+  const DB_NAME = "notes_01_db";
+  const DB_VERSION = 1;
+  const $ = (id) => document.getElementById(id);
+  const state = { notes: [], folders: [], selectedId: null, filter: "all", folderId: null, search: "", saveTimer: null };
+  let db;
+
+  function openDB() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB_NAME, DB_VERSION);
+      request.onupgradeneeded = () => {
+        const d = request.result;
+        if (!d.objectStoreNames.contains("notes")) d.createObjectStore("notes", { keyPath: "id" });
+        if (!d.objectStoreNames.contains("folders")) d.createObjectStore("folders", { keyPath: "id" });
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+  function store(name, mode="readonly") { return db.transaction(name, mode).objectStore(name); }
+  function getAll(name) {
+    return new Promise((resolve, reject) => {
+      const req = store(name).getAll();
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => reject(req.error);
+    });
+  }
+  function put(name, item) {
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(name, "readwrite");
+      tx.objectStore(name).put(item);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error);
+    });
+  }
+  function remove(name, id) {
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(name, "readwrite");
+      tx.objectStore(name).delete(id);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+  function uid() { return (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2)); }
+  function now() { return new Date().toISOString(); }
+  function safeDate(s) {
+    try { return new Date(s).toLocaleDateString(undefined, { month:"short", day:"numeric" }); }
+    catch { return ""; }
+  }
+  function toast(message) {
+    $("toastRoot").innerHTML = "";
+    const el = document.createElement("div");
+    el.className = "toast"; el.textContent = message;
+    $("toastRoot").appendChild(el);
+    setTimeout(() => el.remove(), 2600);
+  }
+  function esc(s) {
+    return String(s ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
+  }
+  function plainExcerpt(s) {
+    return String(s || "").replace(/[#>*_`~\-\[\]()]/g," ").replace(/\s+/g," ").trim().slice(0,100) || "No additional text";
+  }
+  function sortedNotes() {
+    let notes = [...state.notes];
+    if (state.filter === "pinned") notes = notes.filter(n => n.pinned);
+    else if (state.filter === "unfiled") notes = notes.filter(n => !n.folderId);
+    else if (state.filter === "folder") notes = notes.filter(n => n.folderId === state.folderId);
+    const q = state.search.trim().toLowerCase();
+    if (q) notes = notes.filter(n => (n.title + " " + n.content).toLowerCase().includes(q));
+    return notes.sort((a,b) => Number(b.pinned)-Number(a.pinned) || (b.updatedAt || "").localeCompare(a.updatedAt || ""));
+  }
+  function render() {
+    $("allCount").textContent = state.notes.length;
+    $("pinnedCount").textContent = state.notes.filter(n => n.pinned).length;
+    $("unfiledCount").textContent = state.notes.filter(n => !n.folderId).length;
+    $("entryCount").textContent = String(sortedNotes().length).padStart(2,"0");
+    document.querySelectorAll("[data-filter]").forEach(b => b.classList.toggle("active", state.filter === b.dataset.filter && state.filter !== "folder"));
+    const folderList = $("folderList");
+    folderList.innerHTML = "";
+    const allFolders = [...state.folders].sort((a,b) => a.name.localeCompare(b.name));
+    if (!allFolders.length) {
+      const hint = document.createElement("div"); hint.className = "eyebrow"; hint.style.padding = "8px 5px"; hint.textContent = "No folders yet"; folderList.appendChild(hint);
+    }
+    allFolders.forEach(f => {
+      const b = document.createElement("button");
+      b.className = "folder-item" + (state.filter === "folder" && state.folderId === f.id ? " active" : "");
+      b.innerHTML = `<span aria-hidden="true">▦</span><span class="folder-name">${esc(f.name)}</span><span class="folder-count">${state.notes.filter(n => n.folderId === f.id).length}</span>`;
+      b.addEventListener("click", () => { state.filter = "folder"; state.folderId = f.id; state.selectedId = null; render(); });
+      b.addEventListener("contextmenu", e => { e.preventDefault(); renameFolder(f); });
+      folderList.appendChild(b);
+    });
+    const view = state.filter === "folder" ? (state.folders.find(f=>f.id===state.folderId)?.name || "Folder") : ({all:"All notes",pinned:"Pinned",unfiled:"Unfiled"}[state.filter] || "All notes");
+    $("currentView").textContent = "PERSONAL ARCHIVE / " + view.toUpperCase();
+    const list = $("notesList"); list.innerHTML = "";
+    const notes = sortedNotes();
+    if (!notes.length) {
+      const empty = document.createElement("div"); empty.className = "empty-list"; empty.textContent = state.search ? "No notes match your search." : "Nothing here yet. Create a note to get started."; list.appendChild(empty);
+    }
+    notes.forEach(n => {
+      const b = document.createElement("button");
+      b.className = "note-card" + (n.id === state.selectedId ? " active" : "");
+      const folder = state.folders.find(f=>f.id===n.folderId);
+      b.innerHTML = `<h3>${n.pinned ? "✳ " : ""}${esc(n.title || "Untitled note")}</h3><p>${esc(plainExcerpt(n.content))}</p><div class="note-meta"><span>${esc(folder?.name || "UNFILED")}</span><span>${esc(safeDate(n.updatedAt))}</span></div>`;
+      b.addEventListener("click", () => { state.selectedId = n.id; render(); renderEditor(); });
+      list.appendChild(b);
+    });
+    if (state.selectedId && !state.notes.some(n=>n.id===state.selectedId)) state.selectedId = null;
+    if (!state.selectedId) {
+      if (notes.length) { state.selectedId = notes[0].id; renderEditor(); }
+      else renderEditor();
+    }
+  }
+  function currentNote() { return state.notes.find(n => n.id === state.selectedId) || null; }
+  function renderEditor() {
+    const n = currentNote(), editor = $("editor");
+    if (!n) {
+      editor.innerHTML = `<div class="editor-empty"><div class="bigmark">N_01</div><p>Your thoughts, stored locally. No account. No ads. No noise.</p><button class="primary" id="emptyNew">＋ CREATE FIRST NOTE</button></div>`;
+      $("emptyNew").onclick = createNote;
+      return;
+    }
+    editor.innerHTML = `
+      <div class="editor-head">
+        <span class="save-state" id="saveState">● SAVED LOCALLY</span>
+        <div class="editor-actions">
+          <button class="secondary" id="pinNote">${n.pinned ? "✳ Unpin" : "✳ Pin"}</button>
+          <button class="secondary" id="duplicateNote">Duplicate</button>
+          <button class="secondary danger" id="deleteNote">Delete</button>
+        </div>
+      </div>
+      <div class="editor-body">
+        <input class="title-input" id="noteTitle" maxlength="200" placeholder="Untitled note" value="${esc(n.title)}" aria-label="Note title">
+        <div class="metadata"><select id="noteFolder" aria-label="Move to folder"><option value="">Unfiled</option>${state.folders.map(f=>`<option value="${esc(f.id)}" ${f.id===n.folderId?"selected":""}>${esc(f.name)}</option>`).join("")}</select><span class="eyebrow" style="align-self:center">MARKDOWN ENABLED</span></div>
+        <div class="toolbar">
+          <button data-insert="**bold text**" title="Insert bold">BOLD</button>
+          <button data-insert="*italic text*" title="Insert italic">ITALIC</button>
+          <button data-insert="# Heading" title="Insert heading">H1</button>
+          <button data-insert="- [ ] Checklist item" title="Insert checklist">☐ CHECK</button>
+          <button data-insert="- List item" title="Insert list">LIST</button>
+          <button data-insert="[link text](https://example.com)" title="Insert link">LINK</button>
+          <button id="togglePreview">HIDE PREVIEW</button>
+        </div>
+        <textarea class="content-input" id="noteContent" spellcheck="true" placeholder="Start writing…&#10;&#10;Markdown works here.&#10;- [ ] A checklist item"></textarea>
+        <div class="preview-label">LIVE PREVIEW</div>
+        <div class="preview" id="preview"></div>
+      </div>`;
+    $("noteContent").value = n.content || "";
+    $("noteTitle").addEventListener("input", e => updateCurrent({title:e.target.value}));
+    $("noteContent").addEventListener("input", e => { updateCurrent({content:e.target.value}); $("preview").innerHTML = renderMarkdown(e.target.value); });
+    $("noteFolder").addEventListener("change", e => updateCurrent({folderId:e.target.value || null}));
+    $("pinNote").onclick = async () => { await updateCurrent({pinned:!currentNote().pinned}); renderEditor(); render(); };
+    $("duplicateNote").onclick = duplicateCurrent;
+    $("deleteNote").onclick = deleteCurrent;
+    document.querySelectorAll("[data-insert]").forEach(b => b.onclick = () => insertAtCursor($("noteContent"), b.dataset.insert));
+    let showPreview = true;
+    $("togglePreview").onclick = () => { showPreview = !showPreview; $("preview").hidden = !showPreview; $("togglePreview").textContent = showPreview ? "HIDE PREVIEW" : "SHOW PREVIEW"; };
+    $("preview").innerHTML = renderMarkdown(n.content || "");
+  }
+  async function updateCurrent(changes) {
+    const n = currentNote(); if (!n) return;
+    Object.assign(n, changes, {updatedAt:now()});
+    $("saveState") && ($("saveState").textContent = "● SAVING…");
+    clearTimeout(state.saveTimer);
+    state.saveTimer = setTimeout(async () => {
+      try { await put("notes", n); if ($("saveState")) $("saveState").textContent = "● SAVED LOCALLY"; render(); }
+      catch { if ($("saveState")) $("saveState").textContent = "SAVE ERROR — EXPORT BACKUP"; }
+    }, 250);
+    // Keep in-memory preview/list responsive; persist immediately when focus leaves too.
+  }
+  async function flushSave() {
+    clearTimeout(state.saveTimer);
+    const n = currentNote();
+    if (n) await put("notes", n);
+  }
+  function insertAtCursor(area, text) {
+    const start = area.selectionStart, end = area.selectionEnd;
+    const before = area.value.slice(0,start), after = area.value.slice(end);
+    const prefix = before && !before.endsWith("\n") ? "\n" : "";
+    const value = before + prefix + text + after;
+    area.value = value; area.focus(); area.selectionStart = area.selectionEnd = (before+prefix+text).length;
+    updateCurrent({content:value}); $("preview").innerHTML = renderMarkdown(value);
+  }
+  function renderMarkdown(input) {
+    // Small, dependency-free Markdown renderer. Escape HTML first so notes cannot inject markup/scripts.
+    let s = esc(input || "");
+    s = s.replace(/```([\s\S]*?)```/g, (_,code)=>"<pre><code>"+code.trim()+"</code></pre>");
+    s = s.replace(/`([^`\n]+)`/g,"<code>$1</code>");
+    s = s.replace(/^### (.*)$/gm,"<h3>$1</h3>").replace(/^## (.*)$/gm,"<h2>$1</h2>").replace(/^# (.*)$/gm,"<h1>$1</h1>");
+    s = s.replace(/^&gt; (.*)$/gm,"<blockquote>$1</blockquote>");
+    s = s.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/\*(.+?)\*/g,"<em>$1</em>").replace(/~~(.+?)~~/g,"<del>$1</del>");
+    s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,'<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    s = s.replace(/^- \[([ xX])\] (.*)$/gm,(_,checked,text)=>`<label style="display:block"><input type="checkbox" disabled ${checked.toLowerCase()==="x"?"checked":""}> ${text}</label>`);
+    s = s.replace(/^- (.*)$/gm,"<li>$1</li>").replace(/(<li>.*<\/li>\n?)+/g, m=>"<ul>"+m+"</ul>");
+    s = s.replace(/^\d+\. (.*)$/gm,"<li>$1</li>");
+    s = s.split(/\n{2,}/).map(block => {
+      const t=block.trim(); if(!t) return "";
+      if (/^(<h[1-3]>|<pre>|<blockquote>|<ul>|<ol>|<label)/.test(t)) return t;
+      return "<p>"+t.replace(/\n/g,"<br>")+"</p>";
+    }).join("");
+    return s;
+  }
+  async function createNote() {
+    await flushSave();
+    const n = {id:uid(),title:"",content:"",folderId:state.filter==="folder"?state.folderId:null,pinned:false,createdAt:now(),updatedAt:now()};
+    await put("notes",n); state.notes.push(n); state.selectedId=n.id; render(); renderEditor(); $("noteTitle").focus();
+  }
+  async function duplicateCurrent() {
+    const n=currentNote(); if(!n)return;
+    const copy={...n,id:uid(),title:(n.title || "Untitled note")+" (copy)",createdAt:now(),updatedAt:now(),pinned:false};
+    await put("notes",copy); state.notes.push(copy); state.selectedId=copy.id; render(); renderEditor(); toast("Note duplicated");
+  }
+  async function deleteCurrent() {
+    const n=currentNote(); if(!n)return;
+    if(!confirm(`Delete "${n.title || "Untitled note"}"? This cannot be undone unless you have a backup.`)) return;
+    await remove("notes",n.id); state.notes=state.notes.filter(x=>x.id!==n.id); state.selectedId=null; render(); toast("Note deleted");
+  }
+  function showModal(title, description, placeholder, onSave, initial="") {
+    $("overlayRoot").innerHTML = `<div class="modal-backdrop"><form class="modal" id="modalForm"><h2>${esc(title)}</h2><p>${esc(description)}</p><input id="modalInput" maxlength="80" required placeholder="${esc(placeholder)}" value="${esc(initial)}"><div class="modal-actions"><button type="button" class="secondary" id="modalCancel">Cancel</button><button type="submit" class="primary">Save</button></div></form></div>`;
+    $("modalCancel").onclick=()=> $("overlayRoot").innerHTML="";
+    $("modalForm").onsubmit = async e => { e.preventDefault(); const v=$("modalInput").value.trim(); if(!v)return; await onSave(v); $("overlayRoot").innerHTML=""; };
+    $("modalInput").focus();
+  }
+  async function addFolder() {
+    showModal("New folder","Folders help keep your notes organised. Folder names are included in backups.","e.g. Personal",async name=>{
+      if(state.folders.some(f=>f.name.toLowerCase()===name.toLowerCase())) { toast("That folder already exists"); return; }
+      const f={id:uid(),name,createdAt:now()}; await put("folders",f); state.folders.push(f); state.filter="folder"; state.folderId=f.id; render(); toast("Folder created");
+    });
+  }
+  async function renameFolder(f) {
+    showModal("Rename folder","Tip: long-press or right-click a folder to rename it.","Folder name",async name=>{
+      f.name=name; await put("folders",f); render(); renderEditor(); toast("Folder renamed");
+    },f.name);
+  }
+  function downloadBlob(blob, filename) {
+    const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1500);
+  }
+  function stamp() { return new Date().toISOString().slice(0,10); }
+  async function exportBackup() {
+    await flushSave();
+    const payload={format:"NOTES_01_BACKUP",version:1,exportedAt:now(),app:"NOTES_01",folders:state.folders,notes:state.notes};
+    downloadBlob(new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),`notes-01-backup-${stamp()}.json`);
+    toast("Backup exported. Keep it somewhere safe.");
+  }
+  async function importBackup(file) {
+    if(!file)return;
+    try {
+      const raw=JSON.parse(await file.text());
+      if(raw.format!=="NOTES_01_BACKUP" || raw.version!==1 || !Array.isArray(raw.notes) || !Array.isArray(raw.folders)) throw new Error("This file isn't a valid NOTES_01 backup.");
+      const mode=confirm("Import backup:\n\nOK = MERGE with existing notes (recommended)\nCancel = choose whether to replace everything");
+      let replace=false;
+      if(!mode) replace=confirm("Replace all current notes and folders with the backup?\n\nOK = Replace everything\nCancel = Cancel import");
+      if(!mode && !replace) return;
+      if(replace) {
+        const tx=db.transaction(["notes","folders"],"readwrite");
+        tx.objectStore("notes").clear(); tx.objectStore("folders").clear();
+        await new Promise((res,rej)=>{tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});
+        state.notes=[]; state.folders=[];
+      }
+      const folderIds=new Map();
+      for(const f0 of raw.folders) {
+        if(!f0 || typeof f0.name!=="string") continue;
+        let f={...f0};
+        const existing=state.folders.find(x=>x.id===f.id);
+        if(existing && existing.name!==f.name) f.id=uid();
+        folderIds.set(f0.id,f.id);
+        if(!state.folders.some(x=>x.id===f.id)) { await put("folders",f); state.folders.push(f); }
+      }
+      for(const n0 of raw.notes) {
+        if(!n0 || typeof n0.content!=="string") continue;
+        let n={id:typeof n0.id==="string"?n0.id:uid(),title:typeof n0.title==="string"?n0.title:"",content:n0.content,folderId:n0.folderId?(folderIds.get(n0.folderId)||n0.folderId):null,pinned:!!n0.pinned,createdAt:n0.createdAt||now(),updatedAt:n0.updatedAt||now()};
+        if(state.notes.some(x=>x.id===n.id)) n.id=uid();
+        await put("notes",n); state.notes.push(n);
+      }
+      state.selectedId=null; state.filter="all"; state.folderId=null; render(); toast("Backup imported successfully");
+    } catch(e) { alert("Could not import backup: "+(e.message || "unknown error")); }
+    finally { $("importFile").value=""; }
+  }
+  async function exportCurrentMarkdown() {
+    await flushSave(); const n=currentNote();
+    if(!n) { toast("Select a note first"); return; }
+    const folder=state.folders.find(f=>f.id===n.folderId);
+    const text=`---\ntitle: ${JSON.stringify(n.title || "Untitled note")}\nfolder: ${JSON.stringify(folder?.name || "")}\npinned: ${n.pinned}\ncreated: ${n.createdAt}\nupdated: ${n.updatedAt}\n---\n\n${n.content || ""}\n`;
+    const filename=(n.title || "untitled-note").replace(/[\\/:*?"<>|]+/g,"-").trim().slice(0,70) || "untitled-note";
+    downloadBlob(new Blob([text],{type:"text/markdown;charset=utf-8"}),`${filename}.md`);
+    toast("Markdown note exported");
+  }
+  $("newNote").onclick=createNote; $("emptyNew").onclick=createNote;
+  $("addFolder").onclick=addFolder;
+  document.querySelectorAll("[data-filter]").forEach(b=>b.onclick=()=>{state.filter=b.dataset.filter;state.folderId=null;state.selectedId=null;render();});
+  $("search").addEventListener("input",e=>{state.search=e.target.value;state.selectedId=null;render();});
+  $("exportBackup").onclick=exportBackup;
+  $("importBackup").onclick=()=>$("importFile").click();
+  $("importFile").addEventListener("change",e=>importBackup(e.target.files[0]));
+  $("exportMarkdown").onclick=exportCurrentMarkdown;
+  window.addEventListener("pagehide",()=>{ try { if(state.selectedId) { const n=currentNote(); if(n) store("notes","readwrite").put(n); } } catch {} });
+  window.addEventListener("beforeunload",()=>{ clearTimeout(state.saveTimer); });
+  async function init() {
+    try {
+      db=await openDB();
+      state.notes=await getAll("notes"); state.folders=await getAll("folders");
+      render();
+      if("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("./sw.js").catch(()=>{});
+    } catch(e) {
+      alert("Local storage could not be opened. Try opening this app from a browser over HTTPS, not from a file preview. "+e.message);
+    }
+  }
+  init();
+})();
+</script>
+</body>
+</html>
