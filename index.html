@@ -497,6 +497,132 @@ main {
     animation: none !important;
   }
 }
+    /* NOTES 01 — REFINED EDITION */
+
+:root {
+  --accent: #ff453a;
+}
+
+body {
+  letter-spacing: -0.015em;
+  -webkit-font-smoothing: antialiased;
+}
+
+.brand h1 {
+  letter-spacing: 0.16em;
+  font-weight: 750;
+}
+
+.eyebrow,
+.crumb,
+.preview-label {
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.primary {
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+
+.primary:active {
+  transform: scale(0.98);
+}
+
+.navbtn,
+.secondary,
+.iconbtn {
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.navbtn.active {
+  border-left: 3px solid var(--accent);
+}
+
+.search {
+  width: 100%;
+  min-height: 46px;
+}
+
+.notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.note-card {
+  padding: 16px;
+  border-radius: 12px;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.note-card h3 {
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+}
+
+.note-card p {
+  line-height: 1.55;
+}
+
+.editor {
+  border-radius: 16px;
+}
+
+.title-input {
+  width: 100%;
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+}
+
+.content-input {
+  line-height: 1.85;
+  letter-spacing: 0;
+}
+
+.toolbar button {
+  min-height: 38px;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (max-width: 850px) {
+  .notes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .note-card {
+    padding: 15px;
+  }
+
+  .editor-body {
+    padding: 18px 15px;
+  }
+
+  .content-input {
+    min-height: 240px;
+  }
+
+  .topbar {
+    row-gap: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
   </style>
 </head>
 <body>
