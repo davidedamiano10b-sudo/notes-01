@@ -116,6 +116,387 @@
       .editor-head { align-items:flex-start; flex-direction:column; }
       .editor-actions { width:100%; }
     }
+    /* NOTES 01 — NOTHING OS REDESIGN */
+:root {
+  color-scheme: dark;
+  --paper: #0b0b0c;
+  --ink: #f3f3f3;
+  --muted: #96969d;
+  --line: #29292d;
+  --panel: #151517;
+  --accent: #ff3b30;
+  --danger: #ff6b63;
+}
+
+html, body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: Inter, "SF Pro Display", "Segoe UI", sans-serif;
+}
+
+.app {
+  grid-template-columns: 240px minmax(0, 1fr);
+}
+
+aside {
+  background: #0e0e10;
+  border-color: var(--line);
+  padding: 24px 16px;
+  gap: 20px;
+}
+
+.brand {
+  border-color: var(--line);
+  padding-bottom: 18px;
+}
+
+.brand h1 {
+  font-size: 18px;
+  letter-spacing: .14em;
+}
+
+.dotmark {
+  background: radial-gradient(circle, #f4f4f4 1.2px, transparent 1.6px) 0 0 / 6px 6px;
+}
+
+.eyebrow {
+  color: #8f8f96;
+  font-size: 10px;
+  letter-spacing: .16em;
+}
+
+.primary {
+  background: var(--ink);
+  color: #090909;
+  border: 1px solid var(--ink);
+  border-radius: 12px;
+  padding: 13px;
+  font-weight: 700;
+}
+
+.secondary, .iconbtn, .navbtn {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+}
+
+.navbtn.active {
+  background: #202023;
+  border-color: #3b3b40;
+  box-shadow: inset 3px 0 var(--accent);
+}
+
+.folder-item {
+  color: var(--ink);
+  border-radius: 10px;
+}
+
+.folder-item.active {
+  background: #1c1c1f;
+  border-color: #3b3b40;
+}
+
+main {
+  padding: 28px clamp(16px, 4vw, 42px) 40px;
+}
+
+.topbar {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 16px;
+}
+
+.crumb {
+  letter-spacing: .14em;
+}
+
+.status-dot {
+  background: var(--accent);
+}
+
+.workspace {
+  grid-template-columns: minmax(230px, 310px) minmax(0, 1fr);
+  gap: 20px;
+}
+
+.search {
+  background: #171719;
+  color: var(--ink);
+  border: 1px solid #303034;
+  border-radius: 12px;
+  padding: 13px;
+}
+
+.search::placeholder {
+  color: #77777f;
+}
+
+.notes-list {
+  gap: 9px;
+}
+
+.note-card {
+  background: #111113;
+  color: var(--ink);
+  border: 1px solid #29292d;
+  border-radius: 13px;
+  padding: 14px;
+}
+
+.note-card.active {
+  background: #1a1a1d;
+  border-color: #4a4a50;
+  box-shadow: inset 3px 0 var(--accent);
+}
+
+.note-card h3 {
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.note-card p {
+  color: #a2a2a8;
+  line-height: 1.5;
+}
+
+.note-meta {
+  color: #85858c;
+}
+
+.editor {
+  min-width: 0;
+  background: #111113;
+  border: 1px solid #28282d;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.editor-head {
+  padding: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.save-state {
+  color: #a1a1a8;
+}
+
+.editor-body {
+  padding: 22px;
+}
+
+.title-input {
+  background: transparent;
+  color: var(--ink);
+  font-size: clamp(25px, 4vw, 36px);
+  font-weight: 650;
+}
+
+.metadata select {
+  background: #1c1c1f;
+  color: var(--ink);
+  border: 1px solid #333338;
+  border-radius: 9px;
+  padding: 8px;
+}
+
+.toolbar {
+  gap: 7px;
+  border-color: var(--line);
+}
+
+.toolbar button {
+  background: #1c1c1f;
+  color: var(--ink);
+  border: 1px solid #343439;
+  border-radius: 9px;
+  padding: 9px;
+}
+
+.toolbar button:hover {
+  background: #29292d;
+  border-color: var(--accent);
+}
+
+.content-input {
+  color: #eee;
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.8;
+  min-height: 300px;
+}
+
+.preview {
+  border-color: var(--line);
+  color: #e5e5e7;
+}
+
+.preview blockquote {
+  border-left-color: var(--accent);
+  color: #bbb;
+}
+
+.preview code, .preview pre {
+  background: #29292d;
+}
+
+.preview input[type="checkbox"] {
+  accent-color: var(--accent);
+}
+
+.editor-empty p {
+  color: var(--muted);
+}
+
+.toast {
+  border: 1px solid #343439;
+  border-radius: 12px;
+  box-shadow: 0 12px 40px #0009;
+}
+
+.modal {
+  background: #151517;
+  color: var(--ink);
+  border: 1px solid #39393f;
+  border-radius: 17px;
+  box-shadow: 0 24px 70px #0009;
+}
+
+.modal input {
+  background: #0b0b0c;
+  color: var(--ink);
+  border-color: #333338;
+  border-radius: 9px;
+}
+
+@media (max-width: 850px) {
+  .app {
+    grid-template-columns: 1fr;
+  }
+
+  aside {
+    min-height: 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 14px 14px 12px;
+    gap: 12px;
+  }
+
+  .brand {
+    padding-bottom: 12px;
+  }
+
+  .brand h1 {
+    font-size: 17px;
+  }
+
+  .nav {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .navbtn {
+    padding: 10px 6px;
+  }
+
+  .folder-list {
+    display: flex;
+    overflow-x: auto;
+    padding: 3px 0 5px;
+    gap: 7px;
+  }
+
+  .folder-item {
+    flex-shrink: 0;
+    border: 1px solid #2d2d32;
+    padding: 9px 12px;
+    border-radius: 999px;
+  }
+
+  .side-bottom {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .side-bottom .secondary {
+    font-size: 11px;
+    padding: 10px 6px;
+  }
+
+  main {
+    padding: 17px 13px 28px;
+  }
+
+  .topbar {
+    margin-bottom: 16px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .workspace {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .notes-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .note-card {
+    min-width: 0;
+    padding: 12px;
+  }
+
+  .editor {
+    border-radius: 16px;
+  }
+
+  .editor-head {
+    padding: 12px;
+  }
+
+  .editor-body {
+    padding: 17px 13px;
+  }
+
+  .content-input {
+    min-height: 220px;
+  }
+}
+
+@media (max-width: 420px) {
+  .notes-list {
+    grid-template-columns: 1fr;
+  }
+
+  .editor-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .editor-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .editor-actions button {
+    flex: 1;
+    min-width: 0;
+    font-size: 12px;
+    padding: 9px 7px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}
   </style>
 </head>
 <body>
