@@ -623,6 +623,109 @@ select:focus-visible {
     animation: none !important;
   }
 }
+    /* NOTES 01 — COMPACT TOOLS MENU */
+
+.tools-menu {
+  position: relative;
+  width: 100%;
+}
+
+.tools-menu summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 42px;
+  padding: 9px 13px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  color: var(--ink);
+  background: #151517;
+  cursor: pointer;
+  list-style: none;
+  font-size: 23px;
+  line-height: 1;
+}
+
+.tools-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.tools-menu summary span {
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: .16em;
+}
+
+.tools-menu summary:hover,
+.tools-menu[open] summary {
+  border-color: var(--accent);
+  background: #202023;
+}
+
+.tools-menu-content {
+  position: absolute;
+  z-index: 100;
+  left: 0;
+  bottom: calc(100% + 8px);
+  width: min(260px, calc(100vw - 36px));
+  display: none;
+  padding: 8px;
+  gap: 6px;
+  background: #151517;
+  border: 1px solid #39393f;
+  border-radius: 14px;
+  box-shadow: 0 16px 40px #0009;
+}
+
+.tools-menu[open] .tools-menu-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.tools-menu-content button {
+  width: 100%;
+  text-align: left;
+  padding: 12px;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.tools-menu-content button:hover {
+  background: #242427;
+  border-color: #343439;
+}
+
+.side-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (max-width: 850px) {
+  .side-bottom {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .tools-menu {
+    width: auto;
+    flex: 0 0 auto;
+  }
+
+  .tools-menu summary {
+    min-width: 94px;
+  }
+
+  .tools-menu-content {
+    left: 0;
+    bottom: calc(100% + 8px);
+  }
+}
   </style>
 </head>
 <body>
@@ -642,12 +745,17 @@ select:focus-visible {
       <div class="folder-head"><span class="eyebrow">Folders</span><button class="iconbtn" id="addFolder" aria-label="Add folder" title="Add folder">＋</button></div>
       <div class="folder-list" id="folderList"></div>
     </section>
-    <div class="side-bottom">
+<div class="side-bottom">
+  <details class="tools-menu">
+    <summary aria-label="More tools" title="More tools">⋯ <span>TOOLS</span></summary>
+    <div class="tools-menu-content">
       <button class="secondary" id="exportBackup">↓ &nbsp; Export backup</button>
       <button class="secondary" id="importBackup">↑ &nbsp; Import backup</button>
       <button class="secondary" id="exportMarkdown">↗ &nbsp; Export note as .md</button>
-      <input id="importFile" type="file" accept=".json,application/json" hidden>
     </div>
+  </details>
+  <input id="importFile" type="file" accept=".json,application/json" hidden>
+</div>
   </aside>
   <main>
     <div class="topbar">
